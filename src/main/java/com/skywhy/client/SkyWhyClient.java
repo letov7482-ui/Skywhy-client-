@@ -3,7 +3,6 @@ package com.skywhy.client;
 import com.skywhy.module.ModuleManager;
 import com.skywhy.config.ConfigManager;
 import com.skywhy.hud.HUDManager;
-import com.skywhy.utils.AntiBanSystem;
 import com.skywhy.gui.ClickGUI;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -40,12 +39,11 @@ public class SkyWhyClient implements ClientModInitializer {
                 }
             }
             moduleManager.onTick();
-            AntiBanSystem.bypass(); // ПОСТОЯННЫЙ БАЙПАСС АНТИЧИТА
         });
 
         HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> hudManager.render(matrixStack, tickDelta));
         configManager.load();
 
-        System.out.println("[SkyWhy] Client initialized with full bypass and cosmetics!");
+        System.out.println("[SkyWhy] Client initialized successfully!");
     }
 }

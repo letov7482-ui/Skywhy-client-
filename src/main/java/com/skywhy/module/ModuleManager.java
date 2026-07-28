@@ -11,7 +11,6 @@ public class ModuleManager {
     private List<Module> modules = new ArrayList<>();
 
     public ModuleManager() {
-        // COMBAT
         addModule(new KillAura());
         addModule(new Reach());
         addModule(new Velocity());
@@ -21,8 +20,6 @@ public class ModuleManager {
         addModule(new HitCrystal());
         addModule(new AutoAnchor());
         addModule(new SafeAnchor());
-
-        // MOVEMENT
         addModule(new Speed());
         addModule(new Flight());
         addModule(new LongJump());
@@ -31,8 +28,6 @@ public class ModuleManager {
         addModule(new NoSlow());
         addModule(new Sprint());
         addModule(new FlyBoost());
-
-        // PLAYER
         addModule(new NoFall());
         addModule(new AntiPush());
         addModule(new AutoRespawn());
@@ -40,8 +35,6 @@ public class ModuleManager {
         addModule(new AutoEat());
         addModule(new Regen());
         addModule(new AntiBlind());
-
-        // VISUAL
         addModule(new ESP());
         addModule(new Nametags());
         addModule(new Tracers());
@@ -49,8 +42,6 @@ public class ModuleManager {
         addModule(new ItemESP());
         addModule(new ChestESP());
         addModule(new SpawnerESP());
-
-        // RENDER
         addModule(new FullBright());
         addModule(new Freecam());
         addModule(new Zoom());
@@ -58,17 +49,12 @@ public class ModuleManager {
         addModule(new WeatherChanger());
         addModule(new XRay());
         addModule(new CustomFOV());
-
-        // MISC
         addModule(new MiddleClick());
         addModule(new Timer());
         addModule(new ChatSuffix());
         addModule(new DiscordRPC());
-
-        // COSMETICS
         addModule(new CosmeticManager());
 
-        // Tick registration
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             for (Module m : modules) if (m.isEnabled()) m.onTick();
         });

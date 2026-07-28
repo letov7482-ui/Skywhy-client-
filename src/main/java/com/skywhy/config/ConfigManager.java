@@ -27,11 +27,6 @@ public class ConfigManager {
                 Map<String, Object> modData = (Map<String, Object>) data.get(m.getName());
                 m.setEnabled((Boolean) modData.getOrDefault("enabled", false));
                 m.setKey(((Double) modData.getOrDefault("key", 0.0)).intValue());
-                // Дополнительные настройки
-                if (modData.containsKey("settings")) {
-                    Map<String, Object> settings = (Map<String, Object>) modData.get("settings");
-                    m.loadSettings(settings);
-                }
             }
         }
     }
@@ -42,33 +37,10 @@ public class ConfigManager {
             Map<String, Object> modData = new HashMap<>();
             modData.put("enabled", m.isEnabled());
             modData.put("key", m.getKey());
-            modData.put("settings", m.saveSettings());
             data.put(m.getName(), modData);
         }
         try (Writer writer = new FileWriter(configFile.toFile())) {
             gson.toJson(data, writer);
         } catch (IOException e) { e.printStackTrace(); }
     }
-
-    public void saveServerHitbox(String serverIP, float multiplier) {
-        Map<String, Object> serverMap = (Map<String, Object>) data.getOrDefault("servers", new HashMap<>());
-        serverMap.put(serverIP, multiplier);
-        data.put("servers", serverMap);
-        save();
-    }
-
-    public float getServerHitbox(String serverIP) {
-        Map<String, Object> serverMap = (Map<String, Object>) data.get("servers");
-        if (serverMap == null) return 0.3f;
-        return ((Double) serverMap.getOrDefault(serverIP, 0.3)).floatValue();
-    }
-
-    public void saveModuleSettings(Module m, Map<String, Object> settings) {
-        data.put(m.getName() + "_settings", settings);
-        save();
-    }
-
-    public Map<String, Object> loadModuleSettings(Module m) {
-        return (Map<String, Object>) data.getOrDefault(m.getName() + "_settings", new HashMap<>());
-    }
-          }
+}

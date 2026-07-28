@@ -19,17 +19,13 @@ repositories {
         name = 'Fabric'
         url = 'https://maven.fabricmc.net/'
     }
-    maven {
-        name = 'Minecraft Libraries'
-        url = 'https://libraries.minecraft.net/'
-    }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:+"
+    // FABRIC API УДАЛЁН - РАБОТАЕТ БЕЗ НЕГО
 }
 
 processResources {
@@ -48,13 +44,5 @@ tasks.withType(JavaCompile).configureEach {
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archives_base_name}" }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
     }
 }

@@ -1,6 +1,8 @@
 package com.skywhy.module;
 
 import net.minecraft.client.MinecraftClient;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class Module {
     protected String name;
@@ -34,6 +36,10 @@ public abstract class Module {
     public void onTick() {}
     public void onRender3D() {}
     public void onRender2D() {}
+
+    // Методы для сохранения/загрузки настроек (переопределять в модулях)
+    public Map<String, Object> saveSettings() { return new HashMap<>(); }
+    public void loadSettings(Map<String, Object> settings) {}
 
     public String getName() { return name; }
     public int getKey() { return key; }

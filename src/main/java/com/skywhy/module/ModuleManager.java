@@ -1,6 +1,5 @@
 package com.skywhy.module;
 
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,10 +53,6 @@ public class ModuleManager {
         addModule(new ChatSuffix());
         addModule(new DiscordRPC());
         addModule(new CosmeticManager());
-
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            for (Module m : modules) if (m.isEnabled()) m.onTick();
-        });
     }
 
     public void addModule(Module m) { modules.add(m); }
@@ -80,4 +75,4 @@ public class ModuleManager {
             if (m.isEnabled() && m.isVisible()) m.onRender2D();
         }
     }
-}
+                }

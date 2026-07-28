@@ -4,12 +4,15 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.entity.player.PlayerEntity;
 import org.lwjgl.opengl.GL11;
 
 public class Render3D {
+    private static final MatrixStack stack = new MatrixStack();
+    private static final Matrix4f matrix = stack.peek().getPositionMatrix();
+
+    // ===== ОСНОВНЫЕ МЕТОДЫ ESP =====
     public static void drawESPBox(double x, double y, double z, double w, double h, double l, int color, float alpha) {
-        MatrixStack stack = new MatrixStack();
-        Matrix4f matrix = stack.peek().getPositionMatrix();
         Tessellator tess = Tessellator.getInstance();
         BufferBuilder buf = tess.getBuffer();
         RenderSystem.enableBlend();
@@ -36,8 +39,6 @@ public class Render3D {
 
     public static void drawESPOutline(double x, double y, double z, double w, double h, double l, int color, float thickness) {
         RenderSystem.lineWidth(thickness);
-        MatrixStack stack = new MatrixStack();
-        Matrix4f matrix = stack.peek().getPositionMatrix();
         Tessellator tess = Tessellator.getInstance();
         BufferBuilder buf = tess.getBuffer();
         RenderSystem.enableBlend();
@@ -74,7 +75,6 @@ public class Render3D {
     }
 
     public static void drawGlow(double x, double y, double z, double w, double h, double l, int color, float intensity) {
-        // Simple glow with additive blending + repeated outline with blur
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         RenderSystem.disableDepthTest();
@@ -86,4 +86,60 @@ public class Render3D {
         RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
     }
-}
+
+    // ===== НОВЫЕ МЕТОДЫ: ТРЕУГОЛЬНИК, ЛИНИЯ, СКЕЛЕТ =====
+    public static void drawTriangle(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, int color) {
+        drawLine3D(new Vec3d(x1,y1,z1), new Vec3d(x2,y2,z2), color);
+        drawLine3D(new Vec3d(x2,y2,z2), new Vec3d(x3,y3,z3), color);
+        drawLine3D(new Vec3d(x3,y3,z3), new Vec3d(x1,y1,z1), color);
+    }
+
+    public static void drawLine3D(Vec3d start, Vec3d end, int color) {
+        Tessellator tess = Tessellator.getInstance();
+        BufferBuilder buf = tess.getBuffer();
+        RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer.getPositionColorProgram());
+        buf.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        float r = ((color>>16)&0xFF)/255f;
+        float g = ((color>>8)&0xFF)/255f;
+        float b = (color&0xFF)/255f;
+        float a = ((color>>24)&0xFF)/255f;
+        if (a < 0.01f) a = 1.0f;
+        MatrixStack stack = new MatrixStack();
+        Matrix4f matrix = stack.peek().getPositionMatrix();
+        buf.vertex(matrix, (float)start.x, (float)start.y, (float)start.z).color(r,g,b,a).next();
+        buf.vertex(matrix, (float)end.x, (float)end.y, (float)end.z).color(r,g,b,a).next();
+        tess.draw();
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+    }
+
+    public static void drawSkeleton(PlayerEntity player, int color) {
+        if (player == null) return;
+        Vec3d pos = player.getPos();
+        Vec3d head = pos.add(0, player.getHeight() - 0.2, 0);
+        Vec3d leftShoulder = pos.add(-0.3, player.getHeight() - 0.5, 0);
+        Vec3d rightShoulder = pos.add(0.3, player.getHeight() - 0.5, 0);
+        Vec3d leftArmEnd = leftShoulder.add(-0.4, -0.5, 0);
+        Vec3d rightArmEnd = rightShoulder.add(0.4, -0.5, 0);
+        Vec3d leftLeg = pos.add(-0.2, 0.2, 0);
+        Vec3d rightLeg = pos.add(0.2, 0.2, 0);
+        Vec3d leftLegEnd = leftLeg.add(-0.2, -0.6, 0);
+        Vec3d rightLegEnd = rightLeg.add(0.2, -0.6, 0);
+        drawLine3D(head, leftShoulder, color);
+        drawLine3D(head, rightShoulder, color);
+        drawLine3D(leftShoulder, rightShoulder, color);
+        drawLine3D(leftShoulder, leftArmEnd, color);
+        drawLine3D(rightShoulder, rightArmEnd, color);
+        drawLine3D(pos, head, color);
+        drawLine3D(pos, leftLeg, color);
+        drawLine3D(pos, rightLeg, color);
+        drawLine3D(leftLeg, leftLegEnd, color);
+        drawLine3D(rightLeg, rightLegEnd, color);
+    }
+
+    public static void drawTracer(double x1, double y1, double z1, double x2, double y2, double z2, int color) {
+        drawLine3D(new Vec3d(x1,y1,z1), new Vec3d(x2,y2,z2), color);
+    }
+            }

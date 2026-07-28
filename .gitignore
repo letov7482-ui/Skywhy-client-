@@ -10,3 +10,5 @@ bin/
 out/
 .vscode/
 run/
+.DS_Store
+Thumbs.db

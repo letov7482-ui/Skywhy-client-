@@ -20,9 +20,44 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Extract Gradle wrapper from ZIP
+        run: |
+          if [ -f gradle/wrapper/gradle-wrapper.jar.zip ]; then
+            echo "📦 Found gradle-wrapper.jar.zip, extracting..."
+            unzip -o gradle/wrapper/gradle-wrapper.jar.zip -d gradle/wrapper/
+            rm gradle/wrapper/gradle-wrapper.jar.zip
+          fi
+          if [ -f gradle.zip ]; then
+            echo "📦 Found gradle.zip, extracting..."
+            unzip -o gradle.zip -d ./
+            rm gradle.zip
+          fi
+          if [ -f gradle-wrapper.zip ]; then
+            echo "📦 Found gradle-wrapper.zip, extracting..."
+            unzip -o gradle-wrapper.zip -d ./
+            rm gradle-wrapper.zip
+          fi
+          chmod +x gradlew
         shell: bash
+
+      - name: Verify gradle-wrapper.jar exists
+        run: |
+          if [ -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "✅ gradle-wrapper.jar exists"
+          else
+            echo "❌ gradle-wrapper.jar NOT FOUND!"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
         run: ./gradlew build --no-daemon --stacktrace

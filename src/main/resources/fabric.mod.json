@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "skywhy",
+  "version": "${version}",
+  "name": "SkyWhy Client",
+  "description": "Advanced visual and combat client",
+  "authors": ["SkyWhy"],
+  "contact": {},
+  "license": "All Rights Reserved",
+  "icon": "assets/skywhy/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "com.skywhy.client.SkyWhyClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

@@ -2,70 +2,42 @@ package com.skywhy.hud;
 
 import com.skywhy.client.SkyWhyClient;
 import com.skywhy.module.Module;
-import com.skywhy.render.Render2D;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import net.minecraft.client.gui.DrawContext;
 
 public class HUDManager {
     private boolean enabled = true;
-    private int watermarkX = 4;
-    private int watermarkY = 4;
-    private int arraylistX = -100;
-    private int arraylistY = 40;
-    private boolean showFPS = true;
-    private boolean showPing = true;
     private boolean showWatermark = true;
     private boolean showArraylist = true;
 
-    public void render(MatrixStack matrices, float tickDelta) {
+    public void render(DrawContext context, float tickDelta) {
         if (!enabled) return;
         MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null) return;
+        if (mc.player == null || mc.textRenderer == null) return;
 
-        int screenWidth = mc.getWindow().getScaledWidth();
-
-        // WATERMARK
         if (showWatermark) {
-            String watermark = "SkyWhy Client";
-            if (showFPS) watermark += " §7| §f" + mc.getCurrentFps() + " FPS";
-            if (showPing) {
-                int ping = 0;
-                if (mc.getNetworkHandler() != null && mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid()) != null) {
-                    ping = mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid()).getLatency();
-                }
-                watermark += " §7| §f" + ping + "ms";
+            String text = "SkyWhy Client";
+            context.drawText(mc.textRenderer, text, 4, 4, 0x00AAFF, false);
+            if (mc.getCurrentFps() > 0) {
+                String fps = "FPS: " + mc.getCurrentFps();
+                context.drawText(mc.textRenderer, fps, 4, 16, 0xAAAAAA, false);
             }
-            Render2D.drawString(matrices, watermark, watermarkX, watermarkY, 0xFFFFFF, 1.0f);
         }
 
-        // ARRAYLIST
         if (showArraylist) {
-            List<Module> modules = new ArrayList<>(SkyWhyClient.INSTANCE.moduleManager.getModules());
-            modules.sort(Comparator.comparing(m -> -mc.textRenderer.getWidth(m.getName())));
-            int y = arraylistY;
-            int x = screenWidth - arraylistX - 20;
-            for (Module m : modules) {
+            int y = 40;
+            for (Module m : SkyWhyClient.INSTANCE.moduleManager.getModules()) {
                 if (m.isEnabled() && m.isVisible()) {
                     String name = m.getName();
-                    int color = 0x00FFAA;
-                    Render2D.drawString(matrices, name, x - mc.textRenderer.getWidth(name), y, color, 1.0f);
+                    int x = mc.getWindow().getScaledWidth() - mc.textRenderer.getWidth(name) - 10;
+                    context.drawText(mc.textRenderer, name, x, y, 0x00FFAA, false);
                     y += 12;
                 }
             }
         }
     }
 
-    // Геттеры и сеттеры для настроек
-    public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    public void setWatermarkPos(int x, int y) { this.watermarkX = x; this.watermarkY = y; }
-    public void setArraylistPos(int x, int y) { this.arraylistX = x; this.arraylistY = y; }
-    public void setShowFPS(boolean show) { this.showFPS = show; }
-    public void setShowPing(boolean show) { this.showPing = show; }
     public void setShowWatermark(boolean show) { this.showWatermark = show; }
     public void setShowArraylist(boolean show) { this.showArraylist = show; }
 }

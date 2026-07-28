@@ -5,10 +5,9 @@ import com.skywhy.config.ConfigManager;
 import com.skywhy.hud.HUDManager;
 import com.skywhy.gui.ClickGUI;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
 public class SkyWhyClient implements ClientModInitializer {
@@ -19,6 +18,7 @@ public class SkyWhyClient implements ClientModInitializer {
     public ConfigManager configManager;
     public HUDManager hudManager;
     private KeyBinding clickGuiKey;
+    private static boolean initialized = false;
 
     @Override
     public void onInitializeClient() {
@@ -27,23 +27,36 @@ public class SkyWhyClient implements ClientModInitializer {
         configManager = new ConfigManager();
         hudManager = new HUDManager();
 
-        clickGuiKey = new KeyBinding("key.skywhy.clickgui", GLFW.GLFW_KEY_RSHIFT, "SkyWhy Client");
-        KeyBindingHelper.registerKeyBinding(clickGuiKey);
+        clickGuiKey = new KeyBinding(
+            "key.skywhy.clickgui",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_RSHIFT,
+            "SkyWhy Client"
+        );
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (clickGuiKey.wasPressed()) {
-                if (client.currentScreen instanceof ClickGUI) {
-                    client.setScreen(null);
-                } else {
-                    client.setScreen(new ClickGUI());
-                }
+        MinecraftClient client = MinecraftClient.getInstance();
+        client.execute(() -> {
+            if (!initialized) {
+                initialized = true;
+                System.out.println("[SkyWhy] Client initialized successfully!");
             }
-            moduleManager.onTick();
         });
 
-        HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> hudManager.render(matrixStack, tickDelta));
         configManager.load();
+    }
 
-        System.out.println("[SkyWhy] Client initialized successfully!");
+    public static void toggleClickGUI() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.currentScreen instanceof ClickGUI) {
+            client.setScreen(null);
+        } else {
+            client.setScreen(new ClickGUI());
+        }
+    }
+
+    public static void onTick() {
+        if (INSTANCE != null && INSTANCE.moduleManager != null) {
+            INSTANCE.moduleManager.onTick();
+        }
     }
 }
